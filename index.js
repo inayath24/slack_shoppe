@@ -75,7 +75,7 @@ request(options, function (error, response, body) {
                   console.log(hit.image);
                   
                   attachments[i] = {};
-                  attachments[i].pretext='Product Code : '+hit.code;
+                  attachments[i].pretext='Product Code : '+hit.code +' Description : '+hit.description+'Price :'+hit.prices['USD']+'\n';
                   attachments[i].fallback=hit.description;
                   attachments[i].color= '#36a64f';
                   attachments[i].title=hit.description;
