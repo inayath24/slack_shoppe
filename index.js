@@ -23,9 +23,13 @@ app.get('/', function(req, res){
 app.post('/post', function(req, res){
   //take a message from Slack slash command
   var query = req.body.text
+  res.status(200).end()
   var request = require('request');
   var reqBody = req.body
   var responseURL = reqBody.response_url
+  // if (reqBody.token != YOUR_APP_VERIFICATION_TOKEN){
+  //      res.status(403).end("Access forbidden")
+
   var myJSONObject = {
                       "requests":[
                           {
