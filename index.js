@@ -67,6 +67,7 @@ request(options, function (error, response, body) {
           var hits = json_body['results'][0]['hits'];
           var i = 0;
           var attachments = {};
+          var fields = {'title':'Priority', 'value':'High', 'short':'true'};
           hits.forEach(function(hit) {
                   console.log(hit.code);
                   console.log(hit.description);
@@ -80,6 +81,8 @@ request(options, function (error, response, body) {
                   attachments[i].author_name=hit.prices['USD'];
                   attachments[i].image_url= hit.image;
                   attachments[i].thumb_url= hit.image;
+                  attachments[i].fields = fields;
+
                   i= i=1;
             });
 
