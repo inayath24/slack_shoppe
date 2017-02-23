@@ -7,6 +7,7 @@ var format = ".json";
 var apikey = process.env.WU_ACCESS  //WU API key; will be set in Heroku
 
 var bodyParser = require('body-parser');
+//var urlencodedParser = require('urlencodedParser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -23,6 +24,8 @@ app.post('/post', function(req, res){
   //take a message from Slack slash command
   var query = req.body.text
   var request = require('request');
+  var reqBody = req.body
+  var responseURL = reqBody.response_url
   var myJSONObject = {
                       "requests":[
                           {
@@ -116,7 +119,8 @@ request(options, function (error, response, body) {
                 "attachments": attachments
             } 
             console.log('body '+body)
-            res.send(body);
+            sendMessageToSlackResponseURL(responseURL, body)
+            //res.send(body);
 
     }
     
@@ -124,7 +128,31 @@ request(options, function (error, response, body) {
   //res.send(body);
 });
 
-     
+function sendMessageToSlackResponseURL(responseURL, JSONmessage){
+    var postOptions = {
+        uri: responseURL,
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        json: JSONmessage
+    }
+    request(postOptions, (error, response, body) => {
+        if (error){
+            // handle errors as you see fit
+        }
+    })
+}
+
+app.post('/slack/actions', bodyParser, (req, res) =>{
+    res.status(200).end() // best practice to respond with 200 status
+    var actionJSONPayload = JSON.parse(req.body.payload) // parse URL-encoded payload JSON string
+    var message = {
+        "text": actionJSONPayload.user.name+" clicked: "+actionJSONPayload.actions[0].name,
+        "replace_original": false
+    }
+    sendMessageToSlackResponseURL(actionJSONPayload.response_url, message)
+})
 
 //tells Node which port to listen on
 app.listen(app.get('port'), function() {
