@@ -64,32 +64,51 @@ request(options, function (error, response, body) {
           var json_body = JSON.parse(convertedObjects, "utf8");
           
           var hits = json_body['results'][0]['hits'];
-          var i = 0;
-          var attachments = {};
+          //var i = 0;
+          var attachments = [];
           var fields = {'title':'Priority', 'value':'High', 'short':'true'};
-          var actions = {'name':'Buy','text':'Buy','value':'value','type':'button'};
+          var actions = [];
+          actions.push({ 'name': 'name', 'text': 'Buy', 'type': 'button', 'value': 'Buy'  });
+
           hits.forEach(function(hit) {
                   console.log(hit.code);
                   console.log(hit.description);
                   console.log(hit.prices['USD']);
                   console.log(hit.image);
+
+                  attachments.push(
+                  {
+                      'pretext': 'Product Code : '+hit.code +'\n Description : '+hit.description+' \nPrice :'+hit.prices['USD']+'\n',
+                      'fallback':hit.description,
+                      'color': '#36a64f',
+                      'title':hit.description,
+                      'text':hit.description,
+                      'author_name':hit.prices['USD'],
+                      'image_url': hit.image,
+                      'thumb_url': hit.image,
+                      'callback_id': hit.code,
+                      'fields': fields,
+                      'actions': actions
+                  }         
+                  );
+
                   
-                  attachments[i] = {};
-                  attachments[i].pretext='Product Code : '+hit.code +'\n Description : '+hit.description+' \nPrice :'+hit.prices['USD']+'\n';
-                  attachments[i].fallback=hit.description;
-                  attachments[i].color= '#36a64f';
-                  attachments[i].title=hit.description;
-                  attachments[i].text=hit.description;
+                  //attachments[i] = {};
+                  //attachments[i].pretext='Product Code : '+hit.code +'\n Description : '+hit.description+' \nPrice :'+hit.prices['USD']+'\n';
+                  //attachments[i].fallback=hit.description;
+                  //attachments[i].color= '#36a64f';
+                  //attachments[i].title=hit.description;
+                  //attachments[i].text=hit.description;
 
-                  attachments[i].author_name = hit.prices['USD'];
-                  attachments[i].image_url= hit.image;
-                  attachments[i].thumb_url= hit.image;
-                  attachments[i].callback_id= hit.code;
+                  //attachments[i].author_name = hit.prices['USD'];
+                  //attachments[i].image_url= hit.image;
+                  //attachments[i].thumb_url= hit.image;
+                  //attachments[i].callback_id= hit.code;
 
-                  attachments[i].fields = fields;
-                  attachments[i].actions = actions;                
+                  //attachments[i].fields = fields;
+                  //attachments[i].actions = actions;                
 
-                  i= i=1;
+                //  i= i=1;
             });
 
             body = {
