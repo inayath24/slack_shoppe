@@ -59,11 +59,10 @@ request(options, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       
       var convertedObjects = JSON.stringify(body);
-          //console.log('Printing body :'+convertedObjects)
+          console.log('Printing body :'+convertedObjects)
 
           var json_body = JSON.parse(convertedObjects, "utf8");
-          console.log('JSON :'+json_body['results'][0]['page']);
-
+          
           var hits = json_body['results'][0]['hits'];
           var i = 0;
           var attachments = {};
@@ -85,6 +84,8 @@ request(options, function (error, response, body) {
                   attachments[i].author_name = hit.prices['USD'];
                   attachments[i].image_url= hit.image;
                   attachments[i].thumb_url= hit.image;
+                  attachments[i].callback_id= hit.code;
+
                   attachments[i].fields = fields;
                   attachments[i].actions = actions;                
 
@@ -92,7 +93,7 @@ request(options, function (error, response, body) {
             });
 
             body = {
-                response_type: "in_channel",
+                response_type: "ephemeral",
                 "attachments": attachments
             } 
             console.log('body '+body)
