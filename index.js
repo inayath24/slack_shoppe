@@ -75,7 +75,8 @@ request(options, function (error, response, body) {
                   
                   attachments[i] = {};
                   attachments[i].pretext=hit.code;
-                  attachments[i].text=hit.description;
+                  attachments[i].title=hit.description;
+                  attachments[i].author=hit.prices['USD'];
                   attachments[i].image_url= hit.image;
                   attachments[i].thumb_url= hit.image;
                   i= i=1;
