@@ -68,6 +68,7 @@ request(options, function (error, response, body) {
           var i = 0;
           var attachments = {};
           var fields = {'title':'Priority', 'value':'High', 'short':'true'};
+          var actions = {'name':'Buy','text':'Buy','value':'value','type':'button'};
           hits.forEach(function(hit) {
                   console.log(hit.code);
                   console.log(hit.description);
@@ -85,6 +86,7 @@ request(options, function (error, response, body) {
                   attachments[i].image_url= hit.image;
                   attachments[i].thumb_url= hit.image;
                   attachments[i].fields = fields;
+                  attachments[i].actions = actions;                
 
                   i= i=1;
             });
