@@ -29,6 +29,7 @@ app.post('/post', urlencodedParser, function(req, res){
   
   if (reqBody.token != 'MPhZB1QYYYjYUsl225XQnuGC'){
          res.status(403).end("Access forbidden")
+  }
 
   var myJSONObject = {
                       "requests":[
