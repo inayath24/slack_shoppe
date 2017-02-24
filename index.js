@@ -16,11 +16,14 @@ app.set('port', (process.env.PORT || 9001));
 app.get('/', function(req, res){
   res.send('Running!!');
 });
+
 app.post('/slack/slash-commands/send-me-buttons', urlencodedParser, (req, res) =>{
     res.status(200).end() // best practice to respond with empty 200 status code
     var reqBody = req.body
     var responseURL = reqBody.response_url
-   
+    if (reqBody.token != 'DlcfI4SN6aksAGI1HQkabGGZ'){
+        res.status(403).end("Access forbidden")
+    }else{
         var message = {
             "text": "This is your first interactive message",
             "attachments": [
@@ -55,8 +58,8 @@ app.post('/slack/slash-commands/send-me-buttons', urlencodedParser, (req, res) =
             ]
         }
         sendMessageToSlackResponseURL(responseURL, message)
-    
-});
+    }
+})
 
 
 function sendMessageToSlackResponseURL(responseURL, JSONmessage){
