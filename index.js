@@ -193,7 +193,8 @@ app.post('/slack/actions', urlencodedParser, (req, res) =>{
     res.status(200).end() // best practice to respond with 200 status
     var actionJSONPayload = JSON.parse(req.body.payload) // parse URL-encoded payload JSON string
     var message = {
-        "text": actionJSONPayload.user.name+" clicked: "+actionJSONPayload.actions[0].name,
+        //"text": actionJSONPayload.user.name+" clicked: "+actionJSONPayload.actions[0].name,
+        "text": 'Slack Command Called',
         "replace_original": false
     }
     sendMessageToSlackResponseURL(actionJSONPayload.response_url, message)
