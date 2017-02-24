@@ -103,6 +103,75 @@ request(options, function (error, response, body) {
   });
 });
 
+//app.post is triggered when a POST request is sent to the URL ‘/post’
+app.post('/view_cart', urlencodedParser, function(req, res){
+  //res.status(200).end()
+  //take a message from Slack slash command
+  var query = req.body.text
+  var request = require('request');
+  var reqBody = req.body
+  var responseURL = reqBody.response_url
+  
+  //if (reqBody.token != 'MPhZB1QYYYjYUsl225XQnuGC'){
+   //      res.status(403).end("Access forbidden")
+  //}
+
+  var viewcart_url = 'https://api.beta.yaas.io/hybris/cart/v1/mobileux/carts/58b03313201ea0001dd16c4e?expandCalculation=false'
+
+// Set the headers
+var headers = {
+    'User-Agent':       'Super Agent/0.0.1',
+    'Content-Type': 'application/json',
+    'Authorization':'Bearer 022-e562bcbd-93b5-4535-bef0-44c1aa2d7dc5'
+}
+
+// Configure the request
+var options = {
+    url: viewcart_url,
+    method: 'GET',
+    headers: headers
+}
+
+var resmessage = "";
+
+// Start the request
+request(options, function (error, response, body) {
+    console.log('Hello');
+    if (!error && response.statusCode == 200) {
+          var json_body = JSON.parse(body, "utf8");        
+          var items = json_body['items'];
+          console.log('Item :'+items);
+          var attachments = [];
+          var fields = [];
+          var actions = [];
+          fields.push({'title':'Priority', 'value':'High', 'short':'true'});
+          actions.push({ 'name': 'name', 'text': 'Buy', 'type': 'button', 'value': 'Buy'  });
+
+          items.forEach(function(item) {
+                console.log("Data processing :"+'Product Code : '+item.product['id']+'\n Name : '+item.product['id']+' \nPrice :'+item.price['effectiveAmount']+'\n');
+                attachments.push(
+                  {
+                      'attachment_type':'default',
+                      'pretext': 'Product Code : '+item.product['id']+'\n Name : '+item.product['id']+' \nPrice :'+item.price['effectiveAmount']+'\n',
+                      'color': '#36a64f',
+                      'title': item.quantity,
+                      'text': item.quantity,
+                      'fields': fields
+                  });
+            });
+         
+            resmessage = {
+                response_type: 'ephemeral',
+                "attachments": attachments
+            } 
+
+           res.send(resmessage)
+
+     }
+    
+  });
+});
+
 function sendMessageToSlackResponseURL(responseURL, JSONmessage){
     console.log('Response URL : '+responseURL)
     var postOptions = {
