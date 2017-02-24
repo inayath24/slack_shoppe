@@ -3,13 +3,11 @@ var app = express();
 var url = require('url');
 var request = require('request');
 
-var format = ".json";
-var apikey = process.env.WU_ACCESS  //WU API key; will be set in Heroku
-
 var bodyParser = require('body-parser');
 //var urlencodedParser = require('urlencodedParser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 //use port is set in the environment variable, or 9001 if it isn’t set.
 app.set('port', (process.env.PORT || 9001));
@@ -20,15 +18,17 @@ app.get('/', function(req, res){
 });
 
 //app.post is triggered when a POST request is sent to the URL ‘/post’
-app.post('/post', function(req, res){
+app.post('/post', urlencodedParser, function(req, res){
+  res.status(200).end()
   //take a message from Slack slash command
   var query = req.body.text
   res.status(200).end()
   var request = require('request');
   var reqBody = req.body
   var responseURL = reqBody.response_url
-  // if (reqBody.token != YOUR_APP_VERIFICATION_TOKEN){
-  //      res.status(403).end("Access forbidden")
+  
+  if (reqBody.token != 'MPhZB1QYYYjYUsl225XQnuGC'){
+         res.status(403).end("Access forbidden")
 
   var myJSONObject = {
                       "requests":[
@@ -54,7 +54,6 @@ var options = {
     method: 'POST',
     headers: headers,
     json: true,
-    //form: {'key1': 'xxx', 'key2': 'yyy'}
     body: myJSONObject
 }
 
@@ -64,75 +63,47 @@ var body = "";
 request(options, function (error, response, body) {
     console.log('Hello');
     if (!error && response.statusCode == 200) {
-      
       var convertedObjects = JSON.stringify(body);
-          console.log('Printing body :'+convertedObjects)
+          //console.log('Printing body :'+convertedObjects)
 
-          var json_body = JSON.parse(convertedObjects, "utf8");
-          
+          var json_body = JSON.parse(convertedObjects, "utf8");          
           var hits = json_body['results'][0]['hits'];
-          //var i = 0;
           var attachments = [];
-          var fields = {'title':'Priority', 'value':'High', 'short':'true'};
+          var fields = [];
           var actions = [];
+          fields.push({'title':'Priority', 'value':'High', 'short':'true'});
           actions.push({ 'name': 'name', 'text': 'Buy', 'type': 'button', 'value': 'Buy'  });
 
           hits.forEach(function(hit) {
-                  console.log(hit.code);
-                  console.log(hit.description);
-                  console.log(hit.prices['USD']);
-                  console.log(hit.image);
-
                   attachments.push(
                   {
+                      'attachment_type':'default',
                       'pretext': 'Product Code : '+hit.code +'\n Description : '+hit.description+' \nPrice :'+hit.prices['USD']+'\n',
                       'fallback':hit.description,
                       'color': '#36a64f',
-                      'title':hit.description,
-                      'text':hit.description,
+                      'title': hit.description,
+                      'text': hit.description,
                       'author_name':hit.prices['USD'],
                       'image_url': hit.image,
                       'thumb_url': hit.image,
                       'callback_id': hit.code,
                       'fields': fields,
                       'actions': actions
-                  }         
-                  );
-
-                  
-                  //attachments[i] = {};
-                  //attachments[i].pretext='Product Code : '+hit.code +'\n Description : '+hit.description+' \nPrice :'+hit.prices['USD']+'\n';
-                  //attachments[i].fallback=hit.description;
-                  //attachments[i].color= '#36a64f';
-                  //attachments[i].title=hit.description;
-                  //attachments[i].text=hit.description;
-
-                  //attachments[i].author_name = hit.prices['USD'];
-                  //attachments[i].image_url= hit.image;
-                  //attachments[i].thumb_url= hit.image;
-                  //attachments[i].callback_id= hit.code;
-
-                  //attachments[i].fields = fields;
-                  //attachments[i].actions = actions;                
-
-                //  i= i=1;
+                  });
             });
 
             body = {
                 response_type: "ephemeral",
                 "attachments": attachments
             } 
-            console.log('body '+body)
             sendMessageToSlackResponseURL(responseURL, body)
-            //res.send(body);
-
-    }
+     }
     
   });
-  //res.send(body);
 });
 
 function sendMessageToSlackResponseURL(responseURL, JSONmessage){
+    console.log('Response URL : '+responseURL)
     var postOptions = {
         uri: responseURL,
         method: 'POST',
@@ -143,12 +114,12 @@ function sendMessageToSlackResponseURL(responseURL, JSONmessage){
     }
     request(postOptions, (error, response, body) => {
         if (error){
-            // handle errors as you see fit
+            console.log('Error while sending the response')
         }
     })
 }
 
-app.post('/slack/actions', bodyParser, (req, res) =>{
+app.post('/slack/actions', urlencodedParser, (req, res) =>{
     res.status(200).end() // best practice to respond with 200 status
     var actionJSONPayload = JSON.parse(req.body.payload) // parse URL-encoded payload JSON string
     var message = {
